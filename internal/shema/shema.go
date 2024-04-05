@@ -17,3 +17,15 @@ type People struct {
 	Surname    string `json:"surname"`
 	Patronymic string `json:"patronymic"`
 }
+
+type Filter struct {
+	RegNum          string `json:"regNum"`
+	Mark            string `json:"mark"`
+	Model           string `json:"model"`
+	Year            int    `json:"year"`
+	OwnerName       string `json:"owner_name"`
+	OwnerSurname    string `json:"owner_surname"`
+	OwnerPatronymic string `json:"owner_patronymic"`
+	Page            int    `json:"page"`
+	Limit           int    `json:"limit"`
+}

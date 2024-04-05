@@ -54,7 +54,8 @@ func (s *DBStorage) SaveCars(ctx context.Context, cars []shema.Car) error {
 		return err
 	}
 
-	stmt, err := tx.PrepareContext(ctx, `INSERT INTO Cars (regNum, mark, model, year, owner_name, owner_surname, owner_patronymic) VALUES ($1, $2, $3, $4, $5, $6, $7)`)
+	stmt, err := tx.PrepareContext(ctx, `INSERT INTO Cars (regNum, mark, model, year, owner_name, 
+                  owner_surname, owner_patronymic) VALUES ($1, $2, $3, $4, $5, $6, $7)`)
 	if err != nil {
 		return err
 	}
@@ -72,6 +73,39 @@ func (s *DBStorage) SaveCars(ctx context.Context, cars []shema.Car) error {
 	}
 
 	return tx.Commit()
+}
+
+func (s *DBStorage) GetCars(ctx context.Context, regNum, mark, model string, year int, ownerName, ownerSurname,
+	ownerPatronymic string, page, limit int) ([]shema.Car, error) {
+
+	offset := (page - 1) * limit
+
+	rows, err := s.conn.QueryContext(ctx, `SELECT regNum, mark, model, year, owner_name, owner_surname, owner_patronymic FROM Cars WHERE 
+		(regNum = COALESCE($1, regNum)) OR 
+		(mark = COALESCE($2, mark)) OR 
+		(model = COALESCE($3, model)) OR
+		(year = COALESCE($4, year)) OR
+		(owner_name = COALESCE($5, owner_name)) OR
+		(owner_surname = COALESCE($6, owner_surname)) OR
+		(owner_patronymic = COALESCE($7, owner_patronymic)) 
+		LIMIT $8 OFFSET $9`,
+		regNum, mark, model, year, ownerName, ownerSurname, ownerPatronymic, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var cars []shema.Car
+	for rows.Next() {
+		var car shema.Car
+		err := rows.Scan(&car.RegNum, &car.Mark, &car.Model, &car.Year, &car.Owner.Name, &car.Owner.Surname, &car.Owner.Patronymic)
+		if err != nil {
+			return nil, err
+		}
+		cars = append(cars, car)
+	}
+
+	return cars, nil
 }
 
 func (s *DBStorage) ShutDown() error {

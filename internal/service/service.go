@@ -33,3 +33,16 @@ func (s *Service) AddCar(ctx context.Context, cars []shema.Car) error {
 	}
 	return nil
 }
+
+func (s *Service) GetData(ctx context.Context, regNum, mark, model string, year int, ownerName, ownerSurname,
+	ownerPatronymic string, page, limit int) ([]shema.Car, error) {
+
+	const op = "service.GetData"
+
+	data, err := s.storage.GetCars(ctx, regNum, mark, model, year, ownerName, ownerSurname, ownerPatronymic, page, limit)
+	if err != nil {
+		s.logger.Info(fmt.Sprintf("%s : failed to get data: %v", op, err))
+		return nil, err
+	}
+	return data, nil
+}
