@@ -91,17 +91,20 @@ func (s *DBStorage) GetCars(ctx context.Context, regNum, mark, model string, yea
 		LIMIT $8 OFFSET $9`,
 		regNum, mark, model, year, ownerName, ownerSurname, ownerPatronymic, limit, offset)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to query: %w", err)
 	}
+
 	defer rows.Close()
 
 	var cars []shema.Car
 	for rows.Next() {
 		var car shema.Car
+
 		err := rows.Scan(&car.RegNum, &car.Mark, &car.Model, &car.Year, &car.Owner.Name, &car.Owner.Surname, &car.Owner.Patronymic)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to scan: %w", err)
 		}
+
 		cars = append(cars, car)
 	}
 
