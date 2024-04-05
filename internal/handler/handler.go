@@ -187,7 +187,7 @@ func (s *Handler) GetNewCars(c *gin.Context) {
 func (s *Handler) GetData(c *gin.Context) {
 	var filter shema.Filter
 	if err := c.ShouldBindJSON(&filter); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		HandlerErr(c, err)
 		return
 	}
 
@@ -196,7 +196,7 @@ func (s *Handler) GetData(c *gin.Context) {
 	data, err := s.service.GetData(ctx, filter.RegNum, filter.Mark, filter.Model, filter.Year, filter.OwnerName,
 		filter.OwnerSurname, filter.OwnerPatronymic, filter.Page, filter.Limit)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		HandlerErr(c, err)
 		return
 	}
 
