@@ -18,6 +18,7 @@ import (
 	"math/big"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -202,4 +203,23 @@ func (s *Handler) GetData(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, data)
+}
+
+func (s *Handler) DeleteData(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		HandlerErr(c, err)
+		return
+	}
+
+	ctx := c.Request.Context()
+
+	err = s.service.DeleteCar(ctx, id)
+	if err != nil {
+		HandlerErr(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "Car deleted"})
 }

@@ -111,6 +111,11 @@ func (s *DBStorage) GetCars(ctx context.Context, regNum, mark, model string, yea
 	return cars, nil
 }
 
+func (s *DBStorage) DeleteCar(ctx context.Context, id int) error {
+	_, err := s.conn.ExecContext(ctx, "DELETE FROM Cars WHERE ID = $1", id)
+	return err
+}
+
 func (s *DBStorage) ShutDown() error {
 	if err := s.conn.Close(); err != nil {
 		return fmt.Errorf("error closing db: %w", err)
