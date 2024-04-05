@@ -23,6 +23,7 @@ func main() {
 
 	sr := service.NewService(stM, cfg)
 	h := handler.NewHandler(sr, cfg)
+
 	go h.Start(ctx)
 
 	quit := make(chan os.Signal, 1)

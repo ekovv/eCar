@@ -17,7 +17,6 @@ import (
 	"log"
 	"math/big"
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"time"
 )
@@ -144,12 +143,6 @@ func (s *Handler) Start(ctx context.Context) {
 }
 
 func (s *Handler) GetNewCars(c *gin.Context) {
-	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		// Здесь мы можем указать ответ, который должен вернуть мок сервер
-		rw.Write([]byte(`{"regNum": "X123XX150", "mark": "Lada", "model": "Vesta", "year": 2002, "owner": {"name": "John", "surname": "Doe", "patronymic": "Smith"}}`))
-	}))
-	// Закрываем сервер, когда он больше не нужен
-	defer server.Close()
 	var regNums shema.RegNum
 	if err := c.ShouldBindJSON(&regNums); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -159,9 +152,9 @@ func (s *Handler) GetNewCars(c *gin.Context) {
 	var cars []shema.Car
 
 	for _, regNum := range regNums.RegNums {
-		resp, err := http.Get(server.URL + "/info?regNum=" + regNum)
+		resp, err := http.Get("http://localhost:63342/info?regNum=" + regNum)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			HandlerErr(c, err)
 			return
 		}
 		defer resp.Body.Close()
@@ -189,4 +182,23 @@ func (s *Handler) GetNewCars(c *gin.Context) {
 		return
 	}
 
+}
+
+func (s *Handler) GetData(c *gin.Context) {
+	var filter shema.Filter
+	if err := c.ShouldBindJSON(&filter); err != nil {
+		HandlerErr(c, err)
+		return
+	}
+
+	ctx := c.Request.Context()
+
+	data, err := s.service.GetData(ctx, filter.RegNum, filter.Mark, filter.Model, filter.Year, filter.OwnerName,
+		filter.OwnerSurname, filter.OwnerPatronymic, filter.Page, filter.Limit)
+	if err != nil {
+		HandlerErr(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, data)
 }
