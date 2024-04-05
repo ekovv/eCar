@@ -46,3 +46,15 @@ func (s *Service) GetData(ctx context.Context, regNum, mark, model string, year 
 	}
 	return data, nil
 }
+
+func (s *Service) DeleteCar(ctx context.Context, id int) error {
+	const op = "service.DeleteCar"
+
+	err := s.storage.DeleteCar(ctx, id)
+	if err != nil {
+		s.logger.Info(fmt.Sprintf("%s : failed to delete data: %v", op, err))
+		return err
+	}
+
+	return nil
+}
