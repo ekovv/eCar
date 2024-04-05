@@ -157,6 +157,7 @@ func (s *Handler) GetNewCars(c *gin.Context) {
 			HandlerErr(c, err)
 			return
 		}
+
 		defer resp.Body.Close()
 
 		body, err := io.ReadAll(resp.Body)
