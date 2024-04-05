@@ -65,6 +65,7 @@ func (s *DBStorage) SaveCars(ctx context.Context, cars []shema.Car) error {
 		_, err := stmt.ExecContext(ctx, car.RegNum, car.Mark, car.Model, car.Year, car.Owner.Name, car.Owner.Surname, car.Owner.Patronymic)
 		if err != nil {
 			err := tx.Rollback()
+
 			if err != nil {
 				return fmt.Errorf("failed to rollback")
 			}
