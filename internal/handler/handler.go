@@ -17,6 +17,7 @@ import (
 	"log"
 	"math/big"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"time"
 )
@@ -143,6 +144,12 @@ func (s *Handler) Start(ctx context.Context) {
 }
 
 func (s *Handler) GetNewCars(c *gin.Context) {
+	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		// Здесь мы можем указать ответ, который должен вернуть мок сервер
+		rw.Write([]byte(`{"regNum": "X123XX150", "mark": "Lada", "model": "Vesta", "year": 2002, "owner": {"name": "John", "surname": "Doe", "patronymic": "Smith"}}`))
+	}))
+	// Закрываем сервер, когда он больше не нужен
+	defer server.Close()
 	var regNums shema.RegNum
 	if err := c.ShouldBindJSON(&regNums); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -152,9 +159,9 @@ func (s *Handler) GetNewCars(c *gin.Context) {
 	var cars []shema.Car
 
 	for _, regNum := range regNums.RegNums {
-		resp, err := http.Get("http://localhost:63342/info?regNum=" + regNum)
+		resp, err := http.Get(server.URL + "/info?regNum=" + regNum)
 		if err != nil {
-			HandlerErr(c, err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 		defer resp.Body.Close()
@@ -174,6 +181,7 @@ func (s *Handler) GetNewCars(c *gin.Context) {
 
 		cars = append(cars, car)
 	}
+
 	ctx := c.Request.Context()
 	err := s.service.AddCar(ctx, cars)
 	if err != nil {

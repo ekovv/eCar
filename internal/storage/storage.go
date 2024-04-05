@@ -73,3 +73,12 @@ func (s *DBStorage) SaveCars(ctx context.Context, cars []shema.Car) error {
 
 	return tx.Commit()
 }
+
+func (s *DBStorage) ShutDown() error {
+	if err := s.conn.Close(); err != nil {
+		return fmt.Errorf("error closing db: %w", err)
+	}
+
+	return nil
+
+}
