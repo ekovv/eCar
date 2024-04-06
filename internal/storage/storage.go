@@ -49,6 +49,7 @@ func (s *DBStorage) CheckConnection() error {
 	return nil
 }
 
+// SaveCars save new cars
 func (s *DBStorage) SaveCars(ctx context.Context, cars []shema.Car) error {
 	tx, err := s.conn.BeginTx(ctx, nil)
 	if err != nil {
@@ -77,6 +78,7 @@ func (s *DBStorage) SaveCars(ctx context.Context, cars []shema.Car) error {
 	return tx.Commit()
 }
 
+// GetCars get cars
 func (s *DBStorage) GetCars(ctx context.Context, regNum, mark, model string, year int, ownerName, ownerSurname,
 	ownerPatronymic string, page, limit int) ([]shema.Car, error) {
 
@@ -113,11 +115,13 @@ func (s *DBStorage) GetCars(ctx context.Context, regNum, mark, model string, yea
 	return cars, nil
 }
 
+// DeleteCar delete car
 func (s *DBStorage) DeleteCar(ctx context.Context, id int) error {
 	_, err := s.conn.ExecContext(ctx, "DELETE FROM Cars WHERE ID = $1", id)
 	return err
 }
 
+// UpdateCar update some strings in db
 func (s *DBStorage) UpdateCar(ctx context.Context, id int, filter shema.Filter) error {
 	fields := make([]string, 0)
 	values := make([]interface{}, 0)
@@ -170,6 +174,7 @@ func (s *DBStorage) UpdateCar(ctx context.Context, id int, filter shema.Filter) 
 	return err
 }
 
+// ShutDown shut down db
 func (s *DBStorage) ShutDown() error {
 	if err := s.conn.Close(); err != nil {
 		return fmt.Errorf("error closing db: %w", err)

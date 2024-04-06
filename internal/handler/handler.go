@@ -143,6 +143,7 @@ func (s *Handler) Start(ctx context.Context) {
 	}
 }
 
+// GetNewCars add car
 func (s *Handler) GetNewCars(c *gin.Context) {
 	var regNums shema.RegNum
 	if err := c.ShouldBindJSON(&regNums); err != nil {
@@ -186,6 +187,7 @@ func (s *Handler) GetNewCars(c *gin.Context) {
 
 }
 
+// GetData get cars
 func (s *Handler) GetData(c *gin.Context) {
 	var filter shema.Filter
 	if err := c.ShouldBindJSON(&filter); err != nil {
@@ -205,6 +207,7 @@ func (s *Handler) GetData(c *gin.Context) {
 	c.JSON(http.StatusOK, data)
 }
 
+// DeleteData delete cars
 func (s *Handler) DeleteData(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -224,6 +227,7 @@ func (s *Handler) DeleteData(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "Car deleted"})
 }
 
+// UpdateData update cars
 func (s *Handler) UpdateData(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)

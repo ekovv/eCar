@@ -24,6 +24,7 @@ func NewService(storage domains.Storage, config config.Config) *Service {
 	return &Service{storage: storage, config: config, logger: logger}
 }
 
+// AddCar add cars
 func (s *Service) AddCar(ctx context.Context, cars []shema.Car) error {
 	const op = "service.AddCar"
 
@@ -35,6 +36,7 @@ func (s *Service) AddCar(ctx context.Context, cars []shema.Car) error {
 	return nil
 }
 
+// GetData get cars from db
 func (s *Service) GetData(ctx context.Context, regNum, mark, model string, year int, ownerName, ownerSurname,
 	ownerPatronymic string, page, limit int) ([]shema.Car, error) {
 
@@ -45,9 +47,14 @@ func (s *Service) GetData(ctx context.Context, regNum, mark, model string, year 
 		s.logger.Info(fmt.Sprintf("%s : failed to get data: %v", op, err))
 		return nil, constants.ErrInvalidData
 	}
+	if len(data) == 0 {
+		s.logger.Info(fmt.Sprintf("%s : data is empty: %v", op, err))
+		return nil, constants.ErrInvalidData
+	}
 	return data, nil
 }
 
+// DeleteCar delete cars
 func (s *Service) DeleteCar(ctx context.Context, id int) error {
 	const op = "service.DeleteCar"
 
@@ -60,6 +67,7 @@ func (s *Service) DeleteCar(ctx context.Context, id int) error {
 	return nil
 }
 
+// UpdateCar update cars
 func (s *Service) UpdateCar(ctx context.Context, id int, filter shema.Filter) error {
 	const op = "service.UpdateCar"
 
