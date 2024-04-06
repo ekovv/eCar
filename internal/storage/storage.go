@@ -9,6 +9,7 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"strings"
 )
 
 type DBStorage struct {
@@ -114,6 +115,58 @@ func (s *DBStorage) GetCars(ctx context.Context, regNum, mark, model string, yea
 
 func (s *DBStorage) DeleteCar(ctx context.Context, id int) error {
 	_, err := s.conn.ExecContext(ctx, "DELETE FROM Cars WHERE ID = $1", id)
+	return err
+}
+
+func (s *DBStorage) UpdateCar(ctx context.Context, id int, filter shema.Filter) error {
+	fields := make([]string, 0)
+	values := make([]interface{}, 0)
+	count := 1
+
+	if filter.RegNum != "" {
+		fields = append(fields, fmt.Sprintf("regNum = $%d", count))
+		values = append(values, filter.RegNum)
+		count++
+	}
+	if filter.Mark != "" {
+		fields = append(fields, fmt.Sprintf("mark = $%d", count))
+		values = append(values, filter.Mark)
+		count++
+	}
+	if filter.Model != "" {
+		fields = append(fields, fmt.Sprintf("model = $%d", count))
+		values = append(values, filter.Model)
+		count++
+	}
+	if filter.Year != 0 {
+		fields = append(fields, fmt.Sprintf("year = $%d", count))
+		values = append(values, filter.Year)
+		count++
+	}
+	if filter.OwnerName != "" {
+		fields = append(fields, fmt.Sprintf("owner_name = $%d", count))
+		values = append(values, filter.OwnerName)
+		count++
+	}
+	if filter.OwnerSurname != "" {
+		fields = append(fields, fmt.Sprintf("owner_surname = $%d", count))
+		values = append(values, filter.OwnerSurname)
+		count++
+	}
+	if filter.OwnerPatronymic != "" {
+		fields = append(fields, fmt.Sprintf("owner_patronymic = $%d", count))
+		values = append(values, filter.OwnerPatronymic)
+		count++
+	}
+
+	if len(fields) == 0 {
+		return fmt.Errorf("field is empty")
+	}
+
+	query := fmt.Sprintf("UPDATE Cars SET %s WHERE ID = $%d", strings.Join(fields, ", "), count)
+	values = append(values, id)
+
+	_, err := s.conn.ExecContext(ctx, query, values...)
 	return err
 }
 

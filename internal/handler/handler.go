@@ -223,3 +223,28 @@ func (s *Handler) DeleteData(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"status": "Car deleted"})
 }
+
+func (s *Handler) UpdateData(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	var filter shema.Filter
+	if err := c.BindJSON(&filter); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	ctx := c.Request.Context()
+
+	err = s.service.UpdateCar(ctx, id, filter)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update car"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "Car updated"})
+}

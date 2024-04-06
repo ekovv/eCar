@@ -58,3 +58,15 @@ func (s *Service) DeleteCar(ctx context.Context, id int) error {
 
 	return nil
 }
+
+func (s *Service) UpdateCar(ctx context.Context, id int, filter shema.Filter) error {
+	const op = "service.UpdateCar"
+
+	err := s.storage.UpdateCar(ctx, id, filter)
+	if err != nil {
+		s.logger.Info(fmt.Sprintf("%s : failed to update data: %v", op, err))
+		return err
+	}
+
+	return nil
+}
