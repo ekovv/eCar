@@ -140,3 +140,92 @@ func TestService_GetData(t *testing.T) {
 		})
 	}
 }
+
+func TestService_DeleteCar(t *testing.T) {
+	tests := []struct {
+		name        string
+		id          int
+		storageMock storageMock
+		wantErr     error
+	}{
+		{
+			name: "OK1",
+			id:   2,
+			storageMock: func(c *mocks.Storage) {
+				c.Mock.On("DeleteCar", mock.Anything, 2).Return(nil).Times(1)
+			},
+			wantErr: nil,
+		},
+		{
+			name: "BAD",
+			id:   12312,
+			storageMock: func(c *mocks.Storage) {
+				c.Mock.On("DeleteCar", mock.Anything, 12312).Return(constants.ErrInvalidData).Times(1)
+			},
+			wantErr: constants.ErrInvalidData,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			storage := mocks.NewStorage(t)
+			tt.storageMock(storage)
+			logger, err := zap.NewProduction()
+
+			service := Service{
+				storage: storage,
+				logger:  logger,
+			}
+			err = service.DeleteCar(context.Background(), tt.id)
+			if !errors.Is(err, tt.wantErr) {
+				t.Errorf("got %v, want %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestService_UpdateCar(t *testing.T) {
+	filter := shema.Filter{
+		RegNum: "DDDDDD",
+		Mark:   "Honda",
+	}
+
+	tests := []struct {
+		name        string
+		id          int
+		storageMock storageMock
+		wantErr     error
+	}{
+		{
+			name: "OK1",
+			id:   2,
+			storageMock: func(c *mocks.Storage) {
+				c.Mock.On("UpdateCar", mock.Anything, 2, filter).Return(nil).Times(1)
+			},
+			wantErr: nil,
+		},
+		{
+			name: "BAD",
+			id:   12312,
+			storageMock: func(c *mocks.Storage) {
+				c.Mock.On("UpdateCar", mock.Anything, 12312, filter).Return(constants.ErrInvalidData).Times(1)
+			},
+			wantErr: constants.ErrInvalidData,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			storage := mocks.NewStorage(t)
+			tt.storageMock(storage)
+			logger, err := zap.NewProduction()
+
+			service := Service{
+				storage: storage,
+				logger:  logger,
+			}
+			err = service.UpdateCar(context.Background(), tt.id, filter)
+			if !errors.Is(err, tt.wantErr) {
+				t.Errorf("got %v, want %v", err, tt.wantErr)
+			}
+		})
+	}
+}
