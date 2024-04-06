@@ -30,7 +30,7 @@ func (s *Service) AddCar(ctx context.Context, cars []shema.Car) error {
 	err := s.storage.SaveCars(ctx, cars)
 	if err != nil {
 		s.logger.Info(fmt.Sprintf("%s : failed to save cars: %v", op, err))
-		return err
+		return constants.ErrInvalidData
 	}
 	return nil
 }
