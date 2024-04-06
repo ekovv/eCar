@@ -1,0 +1,149 @@
+openapi: 3.0.3
+info:
+  title: Car info
+  version: 0.0.1
+paths:
+  /api/add:
+    post:
+      summary: Добавление новых машин
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Add'
+      responses:
+        '200':
+          description: Ok
+        '400':
+          description: Bad request
+  /api/all:
+    post:
+      summary: Получение информации
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Filter'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+        '400':
+          description: Bad request
+  /api/delete/{id}:
+    delete:
+      summary: Удаление машин
+      parameters:
+        - name: id
+          in: path
+          description: ID машины
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Ok
+        '400':
+          description: Bad request
+  /api/update/{id}:
+    put:
+      summary: Изменение существующих машин
+      parameters:
+        - name: id
+          in: path
+          description: ID машины
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Update'
+      responses:
+        '200':
+          description: Ok
+        '400':
+          description: Bad request
+
+
+
+components:
+  schemas:
+    Update:
+      type: object
+      properties:
+        "regNum":
+          type: string
+          example: X123XX150
+        "mark":
+          type: string
+          example: Lada
+    Filter:
+      type: object
+      properties:
+        "regNum":
+          type: string
+          example: X123XX150
+        "mark":
+          type: string
+          example: Lada
+        "limit":
+          type: integer
+          example: 1
+        "page":
+          type: integer
+          example: 2
+      required:
+        - regNum
+        - limit
+        - page
+    Add:
+      type: object
+      properties:
+        "regNums":
+          type: array
+          example: ["X123XX150"]
+      required:
+        - regNums
+    Car:
+      required:
+        - regNum
+        - mark
+        - model
+        - owner
+      type: object
+      properties:
+        regNum:
+          type: string
+          example: X123XX150
+        mark:
+          type: string
+          example: Lada
+        model:
+          type: string
+          example: Vesta
+        year:
+          type: integer
+          example: 2002
+        owner:
+          $ref: '#/components/schemas/People'
+    People:
+      required:
+        - name
+        - surname
+      type: object
+      properties:
+        name:
+          type: string
+        surname:
+          type: string
+        patronymic:
+          type: string
+
