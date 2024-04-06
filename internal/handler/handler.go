@@ -146,7 +146,7 @@ func (s *Handler) Start(ctx context.Context) {
 func (s *Handler) GetNewCars(c *gin.Context) {
 	var regNums shema.RegNum
 	if err := c.ShouldBindJSON(&regNums); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		HandlerErr(c, err)
 		return
 	}
 
@@ -228,13 +228,13 @@ func (s *Handler) UpdateData(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		HandlerErr(c, err)
 		return
 	}
 
 	var filter shema.Filter
 	if err := c.BindJSON(&filter); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		HandlerErr(c, err)
 		return
 	}
 
@@ -242,7 +242,7 @@ func (s *Handler) UpdateData(c *gin.Context) {
 
 	err = s.service.UpdateCar(ctx, id, filter)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update car"})
+		HandlerErr(c, err)
 		return
 	}
 

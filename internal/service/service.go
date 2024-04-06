@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"eCar/config"
+	"eCar/internal/constants"
 	"eCar/internal/domains"
 	"eCar/internal/shema"
 	"fmt"
@@ -29,7 +30,7 @@ func (s *Service) AddCar(ctx context.Context, cars []shema.Car) error {
 	err := s.storage.SaveCars(ctx, cars)
 	if err != nil {
 		s.logger.Info(fmt.Sprintf("%s : failed to save cars: %v", op, err))
-		return err
+		return constants.ErrInvalidData
 	}
 	return nil
 }
@@ -42,7 +43,7 @@ func (s *Service) GetData(ctx context.Context, regNum, mark, model string, year 
 	data, err := s.storage.GetCars(ctx, regNum, mark, model, year, ownerName, ownerSurname, ownerPatronymic, page, limit)
 	if err != nil {
 		s.logger.Info(fmt.Sprintf("%s : failed to get data: %v", op, err))
-		return nil, err
+		return nil, constants.ErrInvalidData
 	}
 	return data, nil
 }
@@ -53,7 +54,7 @@ func (s *Service) DeleteCar(ctx context.Context, id int) error {
 	err := s.storage.DeleteCar(ctx, id)
 	if err != nil {
 		s.logger.Info(fmt.Sprintf("%s : failed to delete data: %v", op, err))
-		return err
+		return constants.ErrInvalidData
 	}
 
 	return nil
@@ -65,7 +66,7 @@ func (s *Service) UpdateCar(ctx context.Context, id int, filter shema.Filter) er
 	err := s.storage.UpdateCar(ctx, id, filter)
 	if err != nil {
 		s.logger.Info(fmt.Sprintf("%s : failed to update data: %v", op, err))
-		return err
+		return constants.ErrInvalidData
 	}
 
 	return nil
